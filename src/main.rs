@@ -42,7 +42,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
 
     #[allow(unused_mut)]
-    let mut contents = 0.25f32.to_ne_bytes().to_vec() ;
+    let mut contents = 0.25f32.to_ne_bytes().to_vec();
     // If this is uncommented, this will work correctly.
     // contents.extend(&[0; 12]);
 
