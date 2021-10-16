@@ -5,7 +5,6 @@ use wgpu::{include_wgsl, util::DeviceExt};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
-    platform::web::WindowExtWebSys,
     window::Window,
 };
 
@@ -178,14 +177,21 @@ fn main() {
     let event_loop = EventLoop::new();
     let window = winit::window::Window::new(&event_loop).unwrap();
 
-    // On wasm, append the canvas to the document body
-    web_sys::window()
-        .and_then(|win| win.document())
-        .and_then(|doc| doc.body())
-        .and_then(|body| {
-            body.append_child(&web_sys::Element::from(window.canvas()))
-                .ok()
-        })
-        .expect("couldn't append canvas to document body");
-    wasm_bindgen_futures::spawn_local(run(event_loop, window));
+    #[cfg(target_arch = "wasm32")]
+    {
+        use winit::platform::web::WindowExtWebSys;
+
+        // On wasm, append the canvas to the document body
+        web_sys::window()
+            .and_then(|win| win.document())
+            .and_then(|doc| doc.body())
+            .and_then(|body| {
+                body.append_child(&web_sys::Element::from(window.canvas()))
+                    .ok()
+            })
+            .expect("couldn't append canvas to document body");
+        wasm_bindgen_futures::spawn_local(run(event_loop, window));
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    pollster::block_on(run(event_loop, window));
 }
